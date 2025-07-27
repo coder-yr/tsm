@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -27,9 +27,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getAuth, signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 type UserRole = 'supplier' | 'vendor';
 
@@ -87,7 +88,29 @@ function NavLink({ item, isMobile = false }: { item: { href: string; label: stri
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState<UserRole>('vendor');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRole = localStorage.getItem('userRole');
+      if (storedRole === 'vendor' || storedRole === 'supplier') {
+        setUserRole(storedRole);
+      }
+    }
+  }, []);
+
   const navItems = userRole === 'supplier' ? supplierNavItems : vendorNavItems;
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+    } catch (e) {
+      // Ignore errors for now
+    }
+    localStorage.clear();
+    router.push('/login');
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -108,70 +131,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                 <Link href="/" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
+                 <button onClick={handleLogout} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
                   <LogOut className="h-5 w-5" />
                   <span className="sr-only">Logout</span>
-                 </Link>
+                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">Logout</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </nav>
       </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <div className="flex flex-col sm:pl-14">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelLeft className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:max-w-xs">
-              <nav className="grid gap-6 text-lg font-medium">
-                <Link
-                  href="/"
-                  className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-                >
-                  <Shield className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">VendorTrust</span>
-                </Link>
-                {navItems.map((item) => (
-                  <NavLink key={item.href} item={item} isMobile />
-                ))}
-                 <Link href="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-                  <LogOut className="h-5 w-5" />
-                  Logout
-                 </Link>
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <PanelLeft className="h-5 w-5 text-muted-foreground" />
+          <span className="font-bold text-lg">{userRole === 'supplier' ? 'Supplier' : 'Vendor'} Dashboard</span>
           <div className="flex items-center gap-2 ml-auto">
-            <Label htmlFor="role-switcher" className="text-sm font-medium">
-              {userRole === 'supplier' ? 'Supplier View' : 'Vendor View'}
-            </Label>
-            <Switch
-              id="role-switcher"
-              checked={userRole === 'vendor'}
-              onCheckedChange={(checked) => setUserRole(checked ? 'vendor' : 'supplier')}
-              aria-label="Toggle user role"
-            />
+            {/* Removed role switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
+                  <UserCircle className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <button onClick={handleLogout} className="w-full text-left">Logout</button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
-                <UserCircle className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link href="/">Logout</Link></DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
             {React.cloneElement(children as React.ReactElement, { userRole })}

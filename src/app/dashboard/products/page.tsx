@@ -42,6 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useRoleGuard from '@/hooks/use-role-guard';
 
 interface ProductsPageProps {
   userRole?: 'supplier' | 'vendor';
@@ -118,26 +119,8 @@ const qualityColors = {
 };
 
 export default function ProductsPage({ userRole = 'supplier' }: ProductsPageProps) {
-  const router = useRouter();
-
-  // Role guard - only suppliers can access this page
-  useEffect(() => {
-    if (userRole !== 'supplier') {
-      router.push('/dashboard');
-    }
-  }, [userRole, router]);
-
-  if (userRole !== 'supplier') {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Access Restricted</h3>
-          <p className="text-muted-foreground">This page is only available for suppliers.</p>
-        </div>
-      </div>
-    );
-  }
+  const guard = useRoleGuard('supplier', userRole);
+  if (guard) return guard;
 
   return (
     <Card>

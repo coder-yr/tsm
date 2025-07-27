@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { app, db } from '@/lib/firebase';
+import { setDoc, doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -33,8 +34,15 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // You can add logic here to save companyName and userRole to your database
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // Save companyName and userRole to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email,
+        companyName,
+        role: userRole,
+        createdAt: new Date().toISOString(),
+      });
       toast({
         title: 'Account Created',
         description: "You've been successfully signed up! Redirecting to login...",

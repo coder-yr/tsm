@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useRoleGuard from '@/hooks/use-role-guard';
 
 interface MarketplacePageProps {
   userRole?: 'supplier' | 'vendor';
@@ -231,13 +232,9 @@ export default function MarketplacePage({ userRole = 'vendor' }: MarketplacePage
   const router = useRouter();
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [orderQuantity, setOrderQuantity] = useState("");
+  const guard = useRoleGuard('vendor', userRole);
 
-  // Role guard - only vendors can access this page
-  useEffect(() => {
-    if (userRole !== 'vendor') {
-      router.push('/dashboard');
-    }
-  }, [userRole, router]);
+  if (guard) return guard;
 
   const handleViewDetails = (product: any) => {
     setSelectedProduct(product);
@@ -253,18 +250,6 @@ export default function MarketplacePage({ userRole = 'vendor' }: MarketplacePage
       router.push('/dashboard/orders');
     }
   };
-
-  if (userRole !== 'vendor') {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Access Restricted</h3>
-          <p className="text-muted-foreground">This page is only available for vendors.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div>

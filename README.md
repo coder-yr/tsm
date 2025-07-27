@@ -20,42 +20,66 @@ VendorTrust provides:
 - **Trust System**: Vendor and supplier verification with ratings
 
 ## Features
-- **For Street Food Vendors**:
-  - Browse verified suppliers by location
-  - Compare prices and quality ratings
-  - Place bulk orders with group discounts
-  - Track deliveries in real-time
-  - Rate and review suppliers
-
-- **For Suppliers**:
-  - List products with quality certifications
-  - Manage inventory and pricing
-  - Receive bulk orders from multiple vendors
-  - Build reputation through ratings
-  - Access to verified vendor network
+- **Role-Based Dashboards**: Vendors and suppliers see different dashboards and navigation based on their role.
+- **Authentication & Authorization**: Secure login, signup, and role-based route protection.
+- **Profile Management**: Users can view and update their company name and see their role and email.
+- **Logout**: Secure logout clears all user data and signs out from Firebase Auth.
+- **Supplier & Product Discovery**: Vendors can browse suppliers and products, place orders, and track activity.
+- **Real-Time Chat**: Communication between vendors and suppliers (WIP).
+- **AI-Powered Recommendations**: (Planned) Intelligent product and supplier suggestions.
 
 ## Tech Stack
 - **Frontend**: Next.js 15, React 18, TypeScript
-- **UI**: Tailwind CSS, Radix UI Components
+- **UI**: Tailwind CSS, Radix UI Components, shadcn/ui
 - **Backend**: Firebase (Auth, Firestore, Storage)
 - **AI**: Genkit for intelligent matching
 - **Deployment**: Vercel
 
 ## Getting Started
 
-```bash
-npm install
-npm run dev
-```
-
-Visit `http://localhost:9002` to see the application.
+1. **Clone the repo and install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Set up Firebase:**
+   - Create a Firebase project (see docs or [Firebase Console](https://console.firebase.google.com/)).
+   - Enable Authentication (Email/Password) and Firestore Database.
+   - Copy your Firebase config and update `src/lib/firebase.ts`.
+   - (Optional) Use `.env.local` for environment-specific configs.
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   Visit `http://localhost:3000` (or as shown in your terminal).
 
 ## Key Pages
 - `/` - Landing page with value proposition
 - `/login` - User authentication
 - `/signup` - User registration (vendor/supplier)
 - `/dashboard` - Role-based dashboard
-- `/dashboard/marketplace` - Product marketplace
-- `/dashboard/suppliers` - Supplier discovery
+- `/dashboard/marketplace` - Product marketplace (vendors only)
+- `/dashboard/suppliers` - Supplier discovery (vendors only)
+- `/dashboard/products` - Product management (suppliers only)
 - `/dashboard/orders` - Order management
 - `/dashboard/chat` - Real-time communication
+- `/dashboard/profile` - Profile management (view/edit company name)
+
+## Development vs Production
+- Use separate Firebase projects for development and production.
+- Update your Firebase config in `src/lib/firebase.ts` or use environment variables.
+- Set appropriate Firestore security rules for production.
+
+## Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+## Future Improvements
+- Password reset and email verification flows
+- Enhanced analytics and reporting
+- Supplier/vendor reviews and ratings
+- Notification system
+- Admin panel for platform management
+- Improved mobile responsiveness and accessibility
+
+---
+
+**Built with ❤️ for the Indian street food community.**
